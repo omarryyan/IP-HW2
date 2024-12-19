@@ -59,6 +59,7 @@ if __name__ == '__main__':
 		matches, is_affine, n_images = prepare_puzzle(puzzle)
 
 		# Add your code here
+		prepare_puzzle(puzzle)
 
 		sol_file = f'solution.jpg'
 		cv2.imwrite(os.path.join(puzzle, sol_file), )
