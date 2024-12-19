@@ -40,10 +40,8 @@ def apply_fix(image):
     return [contrast_img, contrast_hist], [gamma_img, gamma_hist], [equalized_img, equalized_hist]
 
 for i in range(1, 4):
-    if i == 1:
-        path = f'{i}.png'
-    else:
-        path = f'{i}.jpg'
+
+    path = f'{i}.jpg'
 
     image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
