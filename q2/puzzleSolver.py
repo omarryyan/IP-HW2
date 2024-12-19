@@ -14,8 +14,12 @@ def get_transform(matches, is_affine):
 	src_points, dst_points = matches[:,0], matches[:,1]
 	
 	# Add your code here
-	
-	return 5
+	if is_affine:
+		transform = cv2.getAffineTransform(src_points.astype(np.float32), dst_points.astype(np.float32))
+	else:
+		transform, _ = cv2.findHomography(src_points.astype(np.float32), dst_points.astype(np.float32))
+
+	return transform
 
 def stitch(img1, img2):
 	# Add your code here
@@ -66,6 +70,8 @@ if __name__ == '__main__':
 		print("-----------------------")
 
 		# Add your code here
+		get_transform(matches, is_affine)
+		print
 
 		sol_file = f'solution.jpg'
 		#cv2.imwrite(os.path.join(puzzle, sol_file), )
