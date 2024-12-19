@@ -72,12 +72,19 @@ if __name__ == '__main__':
 
 	for puzzle_dir in lst:
 		print(f'Starting {puzzle_dir}')
-		
+
+
 		puzzle = os.path.join('puzzles', puzzle_dir)
 		
 		pieces_pth = os.path.join(puzzle, 'pieces')
 		edited = os.path.join(puzzle, 'abs_pieces')
-		
+
+		path1 =os.path.join(pieces_pth, 'piece_1.jpg')
+		path2 = os.path.join(pieces_pth, 'piece_2.jpg')
+
+		image1 = cv2.imread(path1, cv2.IMREAD_GRAYSCALE)
+		image2 = cv2.imread(path2, cv2.IMREAD_GRAYSCALE)
+
 		matches, is_affine, n_images = prepare_puzzle(puzzle)
 
 		print(matches)
@@ -88,6 +95,9 @@ if __name__ == '__main__':
 		print("-----------------------")
 
 		transform = get_transform(matches[0], is_affine)
+		original_image2 = inverse_transform_target_image(image2, transform, image1.shape)
+		cv2.imshow('original_image2', original_image2)
+		cv2.waitKey(0)
 		print(transform)
 		sol_file = f'solution.jpg'
 		#cv2.imwrite(os.path.join(puzzle, sol_file), )
