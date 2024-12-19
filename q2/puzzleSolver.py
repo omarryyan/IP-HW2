@@ -11,12 +11,24 @@ import sys
 
 #matches is of (3|4 X 2 X 2) size. Each row is a match - pair of (kp1,kp2) where kpi = (x,y)
 def get_transform(matches, is_affine):
-	src_points, dst_points = matches[:,0], matches[:,1]
-	
-	# Add your code here
+	src_points = matches[:, 0]  # Source points (e.g., in the canvas)
+	dst_points = matches[:, 1]  # Destination points (e.g., in the transformed piece)
+	print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=")
+	print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=")
+	print(src_points)
+	print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=")
+	print(dst_points)
+	print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=")
+	print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=")
 	if is_affine:
+		# Ensure we have exactly 3 point pairs for affine transformation
+		if len(src_points) != 3 or len(dst_points) != 3:
+			raise ValueError("Affine transformation requires exactly 3 point pairs.")
 		transform = cv2.getAffineTransform(src_points.astype(np.float32), dst_points.astype(np.float32))
 	else:
+		# Ensure we have at least 4 point pairs for projective transformation
+		if len(src_points) < 4 or len(dst_points) < 4:
+			raise ValueError("Projective transformation requires at least 4 point pairs.")
 		transform, _ = cv2.findHomography(src_points.astype(np.float32), dst_points.astype(np.float32))
 
 	return transform
