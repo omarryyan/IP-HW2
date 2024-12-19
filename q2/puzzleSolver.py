@@ -15,7 +15,7 @@ def get_transform(matches, is_affine):
 	
 	# Add your code here
 	
-	return T
+	return 5
 
 def stitch(img1, img2):
 	# Add your code here
@@ -61,4 +61,4 @@ if __name__ == '__main__':
 		# Add your code here
 
 		sol_file = f'solution.jpg'
-		cv2.imwrite(os.path.join(puzzle, sol_file), final_puzzle)
+		cv2.imwrite(os.path.join(puzzle, sol_file), )
