@@ -69,9 +69,7 @@ if __name__ == '__main__':
 		print(n_images)
 		print("-----------------------")
 
-		# Add your code here
-		get_transform(matches, is_affine)
-		print
-
+		transform = get_transform(matches[0], is_affine)
+		print(transform)
 		sol_file = f'solution.jpg'
 		#cv2.imwrite(os.path.join(puzzle, sol_file), )
