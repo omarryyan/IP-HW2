@@ -58,7 +58,14 @@ if __name__ == '__main__':
 		
 		matches, is_affine, n_images = prepare_puzzle(puzzle)
 
+		print(matches)
+		print("-----------------------")
+		print(is_affine)
+		print("-----------------------")
+		print(n_images)
+		print("-----------------------")
+
 		# Add your code here
 
 		sol_file = f'solution.jpg'
-		cv2.imwrite(os.path.join(puzzle, sol_file), )
+		#cv2.imwrite(os.path.join(puzzle, sol_file), )
