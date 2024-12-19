@@ -39,9 +39,15 @@ def stitch(img1, img2):
 
 # Output size is (w,h)
 def inverse_transform_target_image(target_img, original_transform, output_size):
-	
 	# Add your code here
-	return None
+
+	output_width, output_height = output_size
+	if original_transform.shape == (2, 3):  # Affine transformation
+		transformed_img = cv2.warpAffine(target_img, original_transform, (output_width, output_height))
+	else:  # Projective transformation
+		transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height))
+
+	return transformed_img
 
 # returns list of pieces file names
 def prepare_puzzle(puzzle_dir):
