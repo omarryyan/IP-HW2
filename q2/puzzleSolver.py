@@ -68,7 +68,7 @@ def prepare_puzzle(puzzle_dir):
     return matches, affine == 3, n_images
 
 if __name__ == '__main__':
-    lst = ['puzzle_affine_2']
+    lst = ['puzzle_homography_1']
 
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
