@@ -26,9 +26,9 @@ def get_transform(matches, is_affine):
     return transform
 
 def stitch(img1, img2):
-    # Add your code here
-    image_stitched= np.where(img2 > 0, img2, img1)
-    return image_stitched
+
+    stitched_image= np.where(img2 > 0, img2, img1)
+    return stitched_image
 
 # Output size is (w,h)
 def inverse_transform_target_image(target_img, original_transform, output_size):
@@ -91,6 +91,7 @@ if __name__ == '__main__':
         print("-----------------------")
         print(n_images)
         print("-----------------------")
+        solution=image1
 
         for idx in range(1, n_images):
             piece = cv2.imread(os.path.join(pieces_pth, f'piece_{idx + 1}.jpg'))
@@ -115,8 +116,9 @@ if __name__ == '__main__':
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-            #solution = stitch(image1, aligned_image)
-            #cv2.imshow(f'Solution{idx+1}', solution)
+            solution = stitch(solution, aligned_image)
+            cv2.imshow(f'Solution{idx+1}', solution)
+            cv2.waitKey(0)
 
             # Save the solution (optional)
             sol_file = f'solution_piece_{idx + 1}.jpg'
