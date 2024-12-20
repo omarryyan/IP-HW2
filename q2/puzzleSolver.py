@@ -24,11 +24,13 @@ def get_transform(matches, is_affine):
 
 def stitch(img1, img2):
     # Add your code here
-    return None
+    image_stitched= np.where(img2 > 0, img2, img1)
+    return image_stitched
 
 # Output size is (w,h)
 def inverse_transform_target_image(target_img, original_transform, output_size):
     output_width, output_height = output_size
+    print(output_width, output_height)
 
     if original_transform.shape == (3, 3):  # Augmented affine or projective transformation
         # Check if it's an affine transformation (last row [0, 0, 1])
@@ -63,7 +65,7 @@ def prepare_puzzle(puzzle_dir):
     return matches, affine == 3, n_images
 
 if __name__ == '__main__':
-    lst = ['puzzle_affine_2']
+    lst = ['puzzle_affine_1']
 
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
@@ -106,13 +108,18 @@ if __name__ == '__main__':
 
             # Apply the inverse transformation to image2
             output_height, output_width = image1.shape[:2]
-            aligned_image2 = inverse_transform_target_image(image2, inverse_transform, (output_height, output_width))
+            aligned_image2 = inverse_transform_target_image(image2, inverse_transform, (output_width, output_height))
 
             # Display the resulting image
             cv2.imshow('Aligned Image2', aligned_image2)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+            stitched_image = stitch(image1, aligned_image2)
+            cv2.imshow('solution', stitched_image)
+            cv2.waitKey(0)
+
             # Save the solution (optional)
             sol_file = f'solution_piece_{idx + 1}.jpg'
-            cv2.imwrite(os.path.join(puzzle, sol_file), aligned_image2)
+            cv2.imwrite(os.path.join(edited, sol_file), aligned_image2)
+
