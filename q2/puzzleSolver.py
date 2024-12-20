@@ -111,7 +111,7 @@ if __name__ == '__main__':
             aligned_image2 = inverse_transform_target_image(piece, inverse_transform, (output_width, output_height))
 
             # Display the resulting image
-            cv2.imshow(f'Aligned Image{idx} + 1}', aligned_image2)
+            cv2.imshow(f'Aligned Image{idx+ 1}', aligned_image2)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
