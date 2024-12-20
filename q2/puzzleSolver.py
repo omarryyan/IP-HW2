@@ -106,12 +106,12 @@ if __name__ == '__main__':
             else:  # Homography transformation
                 inverse_transform = np.linalg.inv(transform)
 
-            # Apply the inverse transformation to image2
+            # Apply the inverse transformation to piece
             output_height, output_width = image1.shape[:2]
-            aligned_image2 = inverse_transform_target_image(image2, inverse_transform, (output_width, output_height))
+            aligned_image2 = inverse_transform_target_image(piece, inverse_transform, (output_width, output_height))
 
             # Display the resulting image
-            cv2.imshow('Aligned Image2', aligned_image2)
+            cv2.imshow(f'Aligned Image{idx} + 1}', aligned_image2)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
