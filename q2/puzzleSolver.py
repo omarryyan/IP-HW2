@@ -63,7 +63,7 @@ def prepare_puzzle(puzzle_dir):
     return matches, affine == 3, n_images
 
 if __name__ == '__main__':
-    lst = ['puzzle_affine_1']
+    lst = ['puzzle_affine_2']
 
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
@@ -75,8 +75,8 @@ if __name__ == '__main__':
         path1 = os.path.join(pieces_pth, 'piece_1.jpg')  # Target image (image1)
         path2 = os.path.join(pieces_pth, 'piece_2.jpg')  # Source image (image2)
 
-        image1 = cv2.imread(path1, cv2.IMREAD_GRAYSCALE)
-        image2 = cv2.imread(path2, cv2.IMREAD_GRAYSCALE)
+        image1 = cv2.imread(path1, cv2.IMREAD_COLOR)
+        image2 = cv2.imread(path2, cv2.IMREAD_COLOR)
 
         matches, is_affine, n_images = prepare_puzzle(puzzle)
 
@@ -105,7 +105,8 @@ if __name__ == '__main__':
                 inverse_transform = np.linalg.inv(transform)
 
             # Apply the inverse transformation to image2
-            aligned_image2 = inverse_transform_target_image(image2, inverse_transform, image1.shape[::-1])
+            output_height, output_width = image1.shape[:2]
+            aligned_image2 = inverse_transform_target_image(image2, inverse_transform, (output_height, output_width))
 
             # Display the resulting image
             cv2.imshow('Aligned Image2', aligned_image2)
