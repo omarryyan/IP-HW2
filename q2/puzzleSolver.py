@@ -108,14 +108,18 @@ if __name__ == '__main__':
 
             # Apply the inverse transformation to piece
             output_height, output_width = image1.shape[:2]
-            aligned_image2 = inverse_transform_target_image(piece, inverse_transform, (output_width, output_height))
+            aligned_image = inverse_transform_target_image(piece, inverse_transform, (output_width, output_height))
 
             # Display the resulting image
-            cv2.imshow(f'Aligned Image{idx+ 1}', aligned_image2)
+            cv2.imshow(f'Aligned Image{idx+ 1}', aligned_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+            #solution = stitch(image1, aligned_image)
+            #cv2.imshow(f'Solution{idx+1}', solution)
+
             # Save the solution (optional)
             sol_file = f'solution_piece_{idx + 1}.jpg'
-            cv2.imwrite(os.path.join(edited, sol_file), aligned_image2)
+            cv2.imwrite(os.path.join(edited, sol_file), aligned_image)
+
 
