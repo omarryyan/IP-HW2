@@ -11,14 +11,19 @@ import sys
 
 # matches is of (3|4 X 2 X 2) size. Each row is a match - pair of (kp1,kp2) where kpi = (x,y)
 def get_transform(matches, is_affine):
-    src_points = matches[:, 0]  # Source points
-    dst_points = matches[:, 1]  # Destination points
+    src_points = matches[:, 0].astype(np.float32)  # Source points
+    print("src_points", src_points)
+    dst_points = matches[:, 1].astype(np.float32)  # Destination points
+    print("dst_points", dst_points)
 
     if is_affine:
         # Ensure we have exactly 3 point pairs for affine transformation
-        transform = cv2.estimateAffine2D(src_points, dst_points)
+        transform = cv2.getAffineTransform(src_points, dst_points)
+        # Convert to 3x3 by appending [0, 0, 1] for consistency
+        transform = np.vstack([transform, [0, 0, 1]])
     else:
-        transform, _ = cv2.findHomography(src_points.astype(np.float32), dst_points.astype(np.float32))
+        # Perspective transformation (Homography)
+        transform = cv2.getPerspectiveTransform(src_points, dst_points)
 
     return transform
 
@@ -114,10 +119,6 @@ if __name__ == '__main__':
             cv2.imshow('Aligned Image2', aligned_image2)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
-
-            stitched_image = stitch(image1, aligned_image2)
-            cv2.imshow('solution', stitched_image)
-            cv2.waitKey(0)
 
             # Save the solution (optional)
             sol_file = f'solution_piece_{idx + 1}.jpg'
