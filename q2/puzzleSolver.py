@@ -12,9 +12,7 @@ import sys
 # matches is of (3|4 X 2 X 2) size. Each row is a match - pair of (kp1,kp2) where kpi = (x,y)
 def get_transform(matches, is_affine):
     src_points = matches[:, 0].astype(np.float32)  # Source points
-    print("src_points", src_points)
     dst_points = matches[:, 1].astype(np.float32)  # Destination points
-    print("dst_points", dst_points)
 
     if is_affine:
         # Ensure we have exactly 3 point pairs for affine transformation
@@ -70,7 +68,7 @@ def prepare_puzzle(puzzle_dir):
     return matches, affine == 3, n_images
 
 if __name__ == '__main__':
-    lst = ['puzzle_affine_1']
+    lst = ['puzzle_affine_2']
 
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
@@ -97,11 +95,8 @@ if __name__ == '__main__':
         for idx in range(1, n_images):
             piece = cv2.imread(os.path.join(pieces_pth, f'piece_{idx + 1}.jpg'))
 
-            # Compute transformation from source (image2) to target (image1)
-            transform_tuple = get_transform(matches=matches[idx - 1], is_affine=is_affine)
-            transform = transform_tuple[0]  # Extract the transformation matrix
-            if transform is None:
-                raise ValueError("Failed to compute transformation matrix.")
+            # Compute transformation from source (piece) to target (image1)
+            transform = get_transform(matches=matches[idx - 1], is_affine=is_affine)
 
             transform = transform.astype(np.float32)  # Now safe to convert to float32
 
