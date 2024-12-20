@@ -26,9 +26,24 @@ def get_transform(matches, is_affine):
     return transform
 
 def stitch(img1, img2):
+    """
+    Combine two images, overlaying non-black pixels from img2 onto img1.
 
-    stitched_image= np.where(img2 > 0, img2, img1)
-    return stitched_image
+    Parameters:
+    - img1: The base image (numpy array).
+    - img2: The overlay image (numpy array).
+
+    Returns:
+    - The combined image.
+    """
+    # Create a mask where img2 has non-black pixels
+    mask = np.any(img2 != 0, axis=-1).astype(np.uint8)
+
+    # Overlay img2 onto img1 using the mask
+    #img1[mask]=img2[mask]
+    cv2.copyTo(img2, mask, img1)
+
+    return img1
 
 # Output size is (w,h)
 def inverse_transform_target_image(target_img, original_transform, output_size):
@@ -40,12 +55,11 @@ def inverse_transform_target_image(target_img, original_transform, output_size):
         if np.allclose(original_transform[2], [0, 0, 1]):
             # Extract the top 2 rows for affine transformation
             affine_transform = original_transform[:2, :]
-            transformed_img = cv2.warpAffine(target_img, affine_transform, (output_width, output_height))
+            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=cv2.INTER_CUBIC)
         else:
             # Use the full 3x3 matrix for projective transformation
-            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height))
-    elif original_transform.shape == (2, 3):  # Regular affine transformation
-        transformed_img = cv2.warpAffine(target_img, original_transform, (output_width, output_height))
+            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=cv2.INTER_CUBIC)
+
     else:
         raise ValueError("Invalid transformation matrix shape.")
 
@@ -68,7 +82,7 @@ def prepare_puzzle(puzzle_dir):
     return matches, affine == 3, n_images
 
 if __name__ == '__main__':
-    lst = ['puzzle_homography_1']
+    lst = ['puzzle_affine_2']
 
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
@@ -101,11 +115,7 @@ if __name__ == '__main__':
 
             transform = transform.astype(np.float32)  # Now safe to convert to float32
 
-            # Compute the inverse transformation matrix
-            if transform.shape == (2, 3):  # Affine transformation
-                inverse_transform = transform  # Directly use the 2x3 matrix for affine transformations
-            else:  # Homography transformation
-                inverse_transform = np.linalg.inv(transform)
+            inverse_transform = np.linalg.inv(transform)
 
             # Apply the inverse transformation to piece
             output_height, output_width = image1.shape[:2]
