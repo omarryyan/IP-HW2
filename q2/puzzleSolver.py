@@ -40,7 +40,6 @@ def stitch(img1, img2):
     mask = np.any(img2 != 0, axis=-1).astype(np.uint8)
 
     # Overlay img2 onto img1 using the mask
-    #img1[mask]=img2[mask]
     cv2.copyTo(img2, mask, img1)
 
     return img1
@@ -55,15 +54,22 @@ def inverse_transform_target_image(target_img, original_transform, output_size):
         if np.allclose(original_transform[2], [0, 0, 1]):
             # Extract the top 2 rows for affine transformation
             affine_transform = original_transform[:2, :]
-            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=cv2.INTER_CUBIC)
+            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=2,borderMode=cv2.BORDER_TRANSPARENT)
         else:
             # Use the full 3x3 matrix for projective transformation
-            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=cv2.INTER_CUBIC)
-
+            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=2,borderMode=cv2.BORDER_TRANSPARENT)
     else:
         raise ValueError("Invalid transformation matrix shape.")
-
     return transformed_img
+
+def load_images_from_dir(directory, formats=(".jpg", ".png")):
+    images = []
+    filenames = [file for file in os.listdir(directory) if file.endswith(formats)]
+    for filename in filenames:
+        image_path = os.path.join(directory, filename)
+        image = cv2.imread(image_path)
+        images.append(image)
+    return images, filenames
 
 # returns list of pieces file names
 def prepare_puzzle(puzzle_dir):
@@ -91,11 +97,8 @@ if __name__ == '__main__':
         pieces_pth = os.path.join(puzzle, 'pieces')
         edited = os.path.join(puzzle, 'abs_pieces')
 
-        path1 = os.path.join(pieces_pth, 'piece_1.jpg')  # Target image (image1)
-        path2 = os.path.join(pieces_pth, 'piece_2.jpg')  # Source image (image2)
-
-        image1 = cv2.imread(path1, cv2.IMREAD_COLOR)
-        image2 = cv2.imread(path2, cv2.IMREAD_COLOR)
+        images, filenames = load_images_from_dir(pieces_pth)
+        image1 = images[0]  # Target image (image1)
 
         matches, is_affine, n_images = prepare_puzzle(puzzle)
 
@@ -105,10 +108,10 @@ if __name__ == '__main__':
         print("-----------------------")
         print(n_images)
         print("-----------------------")
-        solution=image1
+        solution = image1
 
         for idx in range(1, n_images):
-            piece = cv2.imread(os.path.join(pieces_pth, f'piece_{idx + 1}.jpg'))
+            piece = images[idx]
 
             # Compute transformation from source (piece) to target (image1)
             transform = get_transform(matches=matches[idx - 1], is_affine=is_affine)
@@ -133,5 +136,3 @@ if __name__ == '__main__':
             # Save the solution (optional)
             sol_file = f'solution_piece_{idx + 1}.jpg'
             cv2.imwrite(os.path.join(edited, sol_file), aligned_image)
-
-
