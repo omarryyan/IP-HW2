@@ -2,20 +2,13 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-def contrast_stretch(image):
-    mean_val = np.mean(image)
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            image[i, j] = image[i, j] - mean_val  # minus the expectation
-    min_val = np.min(image)
-    max_val = np.max(image)
-    contrast_parameter_a = 255.0 / (max_val - min_val)  # y_1 - y_0 / x_1 - x_0
-    contrast_parameter_b = 0 - min_val * contrast_parameter_a  # y_0 - x_0 * a
-    for i in range(image.shape[0]):
-        for j in range(image.shape[1]):
-            image[i, j] = image[i, j] * contrast_parameter_a + contrast_parameter_b + mean_val  # ax + b + m
 
-    return image, np.cumsum(cv2.calcHist([image], [0], None, [256], [0, 256]))
+def contrast_stretch(image):
+    alpha = 0.7
+    beta = 50
+    fixed_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
+    return fixed_image,np.cumsum(cv2.calcHist([fixed_image], [0], None, [256], [0, 256]))
+
 
 def gamma_correction(image, gamma):
     # Normalize pixels
@@ -34,7 +27,7 @@ def hist_equalization(image):
 
 def apply_fix(image):
     contrast_img, contrast_hist = contrast_stretch(image)
-    gamma_img, gamma_hist = gamma_correction(image, gamma=1.5)  # Adjust gamma as needed
+    gamma_img, gamma_hist = gamma_correction(image, gamma=0.5)  # Adjust gamma as needed
     equalized_img, equalized_hist = hist_equalization(image)
 
     return [contrast_img, contrast_hist], [gamma_img, gamma_hist], [equalized_img, equalized_hist]
