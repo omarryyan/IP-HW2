@@ -17,17 +17,17 @@
 
 ## image 3
 # first matching
-328 81 	#img1
-217 7    #img3
+336 210 	#img1
+213 104    #img3
 
 # second matching
-258 412		#img1
-137 245 	#img3
+399 301		#img1
+253 104 	#img3
 
 # third matching
-376 390	#img1
-228 242	#img3
+350 304	#img1
+216 175	#img3
 
 # fourth matching
-439 389 	#img1
-276 245 	#img2
+393 381 	#img1
+240 235 	#img2

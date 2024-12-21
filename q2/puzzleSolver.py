@@ -69,7 +69,7 @@ def prepare_puzzle(puzzle_dir):
 
 
 if __name__ == '__main__':
-    lst = ['puzzle_affine_2']  # List of puzzles to process
+    lst = ['puzzle_homography_1']  # List of puzzles to process
 
     # Loop through each puzzle directory
     for puzzle_dir in lst:
