@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 import os
 import shutil
-import sys
 
 # matches is of (3|4 X 2 X 2) size. Each row is a match - pair of (kp1,kp2) where kpi = (x,y)
 def get_transform(matches, is_affine):
@@ -25,17 +24,8 @@ def get_transform(matches, is_affine):
 
     return transform
 
+# stitch img2 to img1
 def stitch(img1, img2):
-    """
-    Combine two images, overlaying non-black pixels from img2 onto img1.
-
-    Parameters:
-    - img1: The base image (numpy array).
-    - img2: The overlay image (numpy array).
-
-    Returns:
-    - The combined image.
-    """
     # Create a mask where img2 has non-black pixels
     mask = np.any(img2 != 0, axis=-1).astype(np.uint8)
 
@@ -44,36 +34,26 @@ def stitch(img1, img2):
 
     return img1
 
-# Output size is (w,h)
-def inverse_transform_target_image(target_img, original_transform, output_size):
+# Function returns the original image of target_img using transform matrix. Output image size is output_size. Output size is (w,h)
+def inverse_transform_target_image(target_img, transform, output_size):
     output_width, output_height = output_size
-    print(output_width, output_height)
 
-    if original_transform.shape == (3, 3):  # Augmented affine or projective transformation
-        # Check if it's an affine transformation (last row [0, 0, 1])
-        if np.allclose(original_transform[2], [0, 0, 1]):
-            # Extract the top 2 rows for affine transformation
-            affine_transform = original_transform[:2, :]
-            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=2,borderMode=cv2.BORDER_TRANSPARENT)
-        else:
-            # Use the full 3x3 matrix for projective transformation
-            transformed_img = cv2.warpPerspective(target_img, original_transform, (output_width, output_height), flags=2,borderMode=cv2.BORDER_TRANSPARENT)
+    # Check if it's an affine transformation (last row [0, 0, 1])
+    if np.allclose(transform[2], [0, 0, 1]):
+        # Extract the top 2 rows for affine transformation
+        affine_transform = transform[:2, :]
+        transformed_img = cv2.warpPerspective(target_img, transform, (output_width, output_height), flags=2, borderMode=cv2.BORDER_TRANSPARENT)
     else:
-        raise ValueError("Invalid transformation matrix shape.")
+        # Use the full 3x3 matrix for projective transformation
+        transformed_img = cv2.warpPerspective(target_img, transform, (output_width, output_height), flags=2, borderMode=cv2.BORDER_TRANSPARENT)
     return transformed_img
-
-def load_images_from_dir(directory, formats=(".jpg", ".png")):
-    images = []
-    filenames = [file for file in os.listdir(directory) if file.endswith(formats)]
-    for filename in filenames:
-        image_path = os.path.join(directory, filename)
-        image = cv2.imread(image_path)
-        images.append(image)
-    return images, filenames
 
 # returns list of pieces file names
 def prepare_puzzle(puzzle_dir):
+
     edited = os.path.join(puzzle_dir, 'abs_pieces')
+
+    # Clear out the previous edited directory if it exists
     if os.path.exists(edited):
         shutil.rmtree(edited)
     os.mkdir(edited)
@@ -87,9 +67,11 @@ def prepare_puzzle(puzzle_dir):
 
     return matches, affine == 3, n_images
 
-if __name__ == '__main__':
-    lst = ['puzzle_affine_2']
 
+if __name__ == '__main__':
+    lst = ['puzzle_affine_2']  # List of puzzles to process
+
+    # Loop through each puzzle directory
     for puzzle_dir in lst:
         print(f'Starting {puzzle_dir}')
 
@@ -97,42 +79,43 @@ if __name__ == '__main__':
         pieces_pth = os.path.join(puzzle, 'pieces')
         edited = os.path.join(puzzle, 'abs_pieces')
 
-        images, filenames = load_images_from_dir(pieces_pth)
-        image1 = images[0]  # Target image (image1)
+        # Directly load image files (either .jpg or .png) from the puzzle pieces directory
+        filenames = sorted([file for file in os.listdir(pieces_pth) if file.endswith((".jpg", ".png"))])
+        images = [cv2.imread(os.path.join(pieces_pth, filename)) for filename in filenames]
+
+        image1 = images[0]  # The first image is treated as the target image (image1)
 
         matches, is_affine, n_images = prepare_puzzle(puzzle)
 
-        print(matches)
-        print("-----------------------")
-        print(is_affine)
-        print("-----------------------")
-        print(n_images)
-        print("-----------------------")
-        solution = image1
+        solution = image1  # Initialize solution with the first image (target)
 
+        # Loop through all puzzle pieces starting from index 1
         for idx in range(1, n_images):
             piece = images[idx]
 
-            # Compute transformation from source (piece) to target (image1)
+            # Compute the transformation from the current piece to the target image (image1)
             transform = get_transform(matches=matches[idx - 1], is_affine=is_affine)
 
-            transform = transform.astype(np.float32)  # Now safe to convert to float32
+            # Convert the transformation matrix to float32 type
+            transform = transform.astype(np.float32)
 
+            # Compute the inverse of the transformation matrix
             inverse_transform = np.linalg.inv(transform)
 
-            # Apply the inverse transformation to piece
+            # Apply the inverse transformation to align the piece with the target image
             output_height, output_width = image1.shape[:2]
             aligned_image = inverse_transform_target_image(piece, inverse_transform, (output_width, output_height))
 
-            # Display the resulting image
-            cv2.imshow(f'Aligned Image{idx+ 1}', aligned_image)
+            # Display the aligned image
+            cv2.imshow(f'Aligned Image{idx + 1}', aligned_image)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
+            # Stitch the aligned image onto the solution (progressive stitching)
             solution = stitch(solution, aligned_image)
-            cv2.imshow(f'Solution{idx+1}', solution)
+            cv2.imshow(f'Solution{idx + 1}', solution)
             cv2.waitKey(0)
 
-            # Save the solution (optional)
+            # Optionally save the aligned image as a part of the solution
             sol_file = f'solution_piece_{idx + 1}.jpg'
             cv2.imwrite(os.path.join(edited, sol_file), aligned_image)
