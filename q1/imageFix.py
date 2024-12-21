@@ -4,7 +4,7 @@ import numpy as np
 
 
 def contrast_stretch(image):
-    alpha = 0.7
+    alpha = 1.5
     beta = 50
     fixed_image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
     return fixed_image,np.cumsum(cv2.calcHist([fixed_image], [0], None, [256], [0, 256]))
@@ -27,7 +27,7 @@ def hist_equalization(image):
 
 def apply_fix(image):
     contrast_img, contrast_hist = contrast_stretch(image)
-    gamma_img, gamma_hist = gamma_correction(image, gamma=0.5)  # Adjust gamma as needed
+    gamma_img, gamma_hist = gamma_correction(image, gamma=1.5)  # Adjust gamma as needed
     equalized_img, equalized_hist = hist_equalization(image)
 
     return [contrast_img, contrast_hist], [gamma_img, gamma_hist], [equalized_img, equalized_hist]
@@ -58,11 +58,11 @@ for i in range(1, 4):
     # Contrast Image and Histogram
     plt.subplot(2, 4, 3)
     plt.imshow(contrast_data[0], cmap='gray')
-    plt.title('Contrast Image')
+    plt.title('Contrast & brightness Histogram')
     plt.subplot(2, 4, 4)
     plt.plot(contrast_data[1] / np.sum(contrast_data[1]) * 255, color='b')
     plt.hist(contrast_data[0].flatten(), bins=256, range=[0, 256], color='gray', alpha=0.6)
-    plt.title('Contrast Histogram')
+    plt.title('Contrast & brightness Histogram')
 
     # Gamma Corrected Image and Histogram
     plt.subplot(2, 4, 5)
@@ -84,8 +84,3 @@ for i in range(1, 4):
 
     plt.tight_layout()
     plt.show()
-
-    # Save the modified images
-    plt.imsave(f'{i}_contrast_fixed.jpg', contrast_data[0], cmap='gray', vmin=0, vmax=255)
-    plt.imsave(f'{i}_gamma_fixed.jpg', gamma_data[0], cmap='gray', vmin=0, vmax=255)
-    plt.imsave(f'{i}_equalized_fixed.jpg', equalized_data[0], cmap='gray', vmin=0, vmax=255)
