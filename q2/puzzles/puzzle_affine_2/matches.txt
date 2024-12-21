@@ -13,16 +13,16 @@
 
 ## image 3
 # first matching
-474 351		#img1
-210 165	    #img3
+410 277		#img1
+157 228	    #img3
 
 # second matching
-443 320		#img1
-189 194		#img3
+474 353		#img1
+210 165		#img3
 
 # third matching
-360 415		#img1
-263 252		#img3
+405 383		#img1
+237 219		#img3
 
 ## image 4
 # first matching
